@@ -17,7 +17,7 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 sh '''
-                  docker build -t ${IMAGE_NAME}:${BUILD_ID} .
+                  /usr/local/bin/docker build -t ${IMAGE_NAME}:${BUILD_ID} .
                 '''
             }
         }
@@ -25,13 +25,13 @@ pipeline {
         stage('Push to Docker Hub') {
             steps {
                 withCredentials([usernamePassword(
-                    credentialsId: 'dockerhub-creds',   // must match Jenkins credential ID
+                    credentialsId: 'dockerhub-creds',
                     usernameVariable: 'DOCKER_USER',
                     passwordVariable: 'DOCKER_PASS'
                 )]) {
                     sh '''
-                      echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
-                      docker push ${IMAGE_NAME}:${BUILD_ID}
+                      echo "$DOCKER_PASS" | /usr/local/bin/docker login -u "$DOCKER_USER" --password-stdin
+                      /usr/local/bin/docker push ${IMAGE_NAME}:${BUILD_ID}
                     '''
                 }
             }
@@ -39,7 +39,7 @@ pipeline {
 
         stage('Deploy to EC2') {
             steps {
-                sshagent (credentials: ['ec2-creds']) { // must match Jenkins EC2 credential ID
+                sshagent (credentials: ['ec2-creds']) {
                     sh """
                       ssh -o StrictHostKeyChecking=no ${EC2_HOST} \\
                         "docker login -u ${DOCKERHUB_USER} && \\
