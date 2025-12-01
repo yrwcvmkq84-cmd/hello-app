@@ -14,13 +14,14 @@ pipeline {
             }
         }
 
-        stage('Build Docker Image') {
+                stage('Build Docker Image') {
             steps {
-                sh '''
-                  /usr/local/bin/docker build -t ${IMAGE_NAME}:${BUILD_ID} .
-                '''
+                sh """
+                  /usr/local/bin/docker build --platform linux/amd64 -t ${IMAGE_NAME}:${BUILD_ID} .
+                """
             }
         }
+
 
         stage('Push to Docker Hub') {
             steps {
