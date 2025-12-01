@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        DOCKERHUB_USER = 'yrwcvmkq84-docker'
+        DOCKERHUB_USER = 'genesisfu'
         IMAGE_NAME     = "${DOCKERHUB_USER}/hello-app"
         EC2_HOST       = 'ubuntu@ec2-98-80-96-74.compute-1.amazonaws.com'
     }
@@ -22,7 +22,7 @@ pipeline {
             }
         }
 
-        stage('Push to Docker Hub') {
+                stage('Push to Docker Hub') {
             steps {
                 withCredentials([usernamePassword(
                     credentialsId: 'dockerhub-creds',
@@ -30,12 +30,17 @@ pipeline {
                     passwordVariable: 'DOCKER_PASS'
                 )]) {
                     sh '''
+                      # Make sure Docker does NOT try to use docker-credential-desktop
+                      mkdir -p $HOME/.docker
+                      echo '{"auths":{}}' > $HOME/.docker/config.json
+
                       echo "$DOCKER_PASS" | /usr/local/bin/docker login -u "$DOCKER_USER" --password-stdin
                       /usr/local/bin/docker push ${IMAGE_NAME}:${BUILD_ID}
                     '''
                 }
             }
         }
+
 
         stage('Deploy to EC2') {
             steps {
