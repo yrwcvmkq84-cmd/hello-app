@@ -22,7 +22,7 @@ pipeline {
             }
         }
 
-                stage('Push to Docker Hub') {
+        stage('Push to Docker Hub') {
             steps {
                 withCredentials([usernamePassword(
                     credentialsId: 'dockerhub-creds',
@@ -30,7 +30,7 @@ pipeline {
                     passwordVariable: 'DOCKER_PASS'
                 )]) {
                     sh '''
-                      # Make sure Docker does NOT try to use docker-credential-desktop
+                      # Reset Docker config so it does NOT use docker-credential-desktop
                       mkdir -p $HOME/.docker
                       echo '{"auths":{}}' > $HOME/.docker/config.json
 
@@ -41,8 +41,7 @@ pipeline {
             }
         }
 
-
-                stage('Deploy to EC2') {
+        stage('Deploy to EC2') {
             steps {
                 sshagent (credentials: ['ec2-creds']) {
                     sh """
@@ -55,7 +54,7 @@ pipeline {
                 }
             }
         }
-
+    }
 
     post {
         success {
