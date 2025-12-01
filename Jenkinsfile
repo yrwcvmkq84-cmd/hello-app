@@ -41,19 +41,18 @@ pipeline {
             }
         }
 
-        stage('Deploy to EC2') {
+                stage('Deploy to EC2') {
             steps {
-                sshagent (credentials: ['ec2-creds']) {
-                    sh """
-                      ssh -o StrictHostKeyChecking=no ${EC2_HOST} \\
-                        'docker pull ${IMAGE_NAME}:${BUILD_ID} && \\
-                         docker stop hello-app || true && \\
-                         docker rm hello-app || true && \\
-                         docker run -d --name hello-app -p 8080:80 ${IMAGE_NAME}:${BUILD_ID}'
-                    """
-                }
+                sh """
+                  ssh -i /Users/genesisfu/Downloads/demo_key.pem -o StrictHostKeyChecking=no ubuntu@ec2-98-80-96-74.compute-1.amazonaws.com \\
+                    'docker pull ${IMAGE_NAME}:${BUILD_ID} && \\
+                     docker stop hello-app || true && \\
+                     docker rm hello-app || true && \\
+                     docker run -d --name hello-app -p 8080:80 ${IMAGE_NAME}:${BUILD_ID}'
+                """
             }
         }
+
     }
 
     post {
